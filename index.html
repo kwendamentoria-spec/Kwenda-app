@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11130f">
+<meta name="description" content="Calculadora de risco e gestão para traders KWENDA.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>KWENDA Trade Calculator</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0d0b;--panel:#141713;--panel2:#1c201a;--line:#30352b;--gold:#e9b85c;--green:#62d69b;--red:#ff7777;--text:#f5f1e8;--muted:#b7b9b0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1a1d15 0%,var(--bg) 60%);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{padding:22px max(16px,calc((100vw - 1040px)/2));border-bottom:1px solid var(--line);background:#11130fee;position:sticky;top:0;z-index:2;backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border:1px solid #88662d;border-radius:13px;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:22px;background:#292216}.brand h1{font-size:19px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:13px}
+main{max-width:1040px;margin:0 auto;padding:18px 14px 40px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.panel{background:linear-gradient(145deg,#171a14,#10120f);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}.full{grid-column:1/-1}.panel h2{font-size:17px;margin:0 0 14px}.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{background:var(--panel2);border-radius:12px;padding:13px}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;font-size:22px;margin-top:5px;overflow-wrap:anywhere}.gold{color:var(--gold)}.green{color:var(--green)}.red{color:var(--red)}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field label{font-size:13px;color:var(--muted)}input,select{width:100%;background:#0b0d0b;color:var(--text);border:1px solid #42483b;border-radius:10px;padding:12px;font:inherit;min-width:0}input:focus,select:focus{outline:2px solid #b88c42;outline-offset:1px}.hint{font-size:12px;color:var(--muted);margin:6px 0 0}.seg{display:flex;gap:8px}.seg label{flex:1}.seg input{position:absolute;opacity:0;width:1px;height:1px}.seg span{display:block;text-align:center;padding:10px;border:1px solid #42483b;border-radius:10px;cursor:pointer}.seg input:checked+span{border-color:var(--gold);background:#332918;color:var(--gold)}
+.result{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.result .stat strong{font-size:20px}.notice{border:1px solid #80612e;background:#211b10;padding:13px;border-radius:12px;margin-top:12px}.notice.ok{border-color:#285a42;background:#102219}.notice.bad{border-color:#853d3d;background:#291515}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}button{border:1px solid #8a6930;border-radius:11px;background:#2a2112;color:var(--gold);padding:12px 15px;font:600 14px system-ui;cursor:pointer}button.secondary{border-color:#42483b;background:#1b1f19;color:var(--text)}button:active{transform:translateY(1px)}.foot{font-size:12px;color:var(--muted);margin-top:18px}.install{display:none}.rule{height:1px;background:var(--line);margin:16px 0}.tiny{font-size:12px;color:var(--muted)}@media(max-width:650px){.grid,.fields{grid-template-columns:1fr}.full{grid-column:auto}header{padding:14px}.stats,.result{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:15px}.stat strong{font-size:19px}main{padding:12px 10px 30px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">K</div><div><h1>KWENDA Trade Calculator</h1><p>Anda rumo à consistência · Prop Firm · XAUUSD</p></div></div></header>
+<main>
+<div class="grid">
+<section class="panel full"><h2>Resumo da conta</h2><div class="stats">
+<div class="stat"><span>Saldo atual (USD)</span><strong id="summaryBalance">$3.263,21</strong></div>
+<div class="stat"><span>Risco por operação</span><strong class="gold" id="summaryRisk">$50,00</strong></div>
+<div class="stat"><span>Take Profit teórico · RR 1:3</span><strong class="green" id="summaryReward">$150,00</strong></div>
+<div class="stat"><span>Lucro que falta para a meta</span><strong id="summaryTarget">$36,79</strong></div>
+</div></section>
+<section class="panel"><h2>1 · Conta e regras da mesa</h2><div class="fields">
+<div class="field"><label for="balance">Saldo atual (USD)</label><input id="balance" type="number" min="0" step="0.01" value="3263.21"></div>
+<div class="field"><label for="risk">Risco máximo por trade (USD)</label><input id="risk" type="number" min="0" step="0.01" value="50"></div>
+<div class="field"><label for="target">Lucro restante (USD)</label><input id="target" type="number" min="0" step="0.01" value="36.79"></div>
+<div class="field"><label for="daily">Limite diário restante (USD)</label><input id="daily" type="number" min="0" step="0.01" value="217"></div>
+<div class="field"><label for="overall">Limite total restante (USD)</label><input id="overall" type="number" min="0" step="0.01" value="563"></div>
+<div class="field"><label for="rr">Relação risco/retorno</label><select id="rr"><option value="1">1:1</option><option value="2">1:2</option><option value="3" selected>1:3</option><option value="4">1:4</option><option value="5">1:5</option></select></div>
+</div><p class="hint">Os limites são os valores que introduzes a partir do painel da tua mesa. Confirma diariamente as regras oficiais.</p></section>
+<section class="panel"><h2>2 · Entrada, SL e contrato</h2>
+<div class="field"><label>Direção</label><div class="seg"><label><input type="radio" name="direction" value="buy" checked><span>BUY / Compra</span></label><label><input type="radio" name="direction" value="sell"><span>SELL / Venda</span></label></div></div>
+<div class="fields" style="margin-top:12px">
+<div class="field"><label for="entry">Preço de entrada (opcional)</label><input id="entry" type="number" step="0.01" placeholder="Ex.: 4000.00"></div>
+<div class="field"><label for="slPrice">Preço do Stop Loss (opcional)</label><input id="slPrice" type="number" step="0.01" placeholder="Ex.: 3996.00"></div>
+<div class="field"><label for="distance">Distância do SL em preço (USD)</label><input id="distance" type="number" min="0" step="0.01" value="4"></div>
+<div class="field"><label for="contract">Tamanho do contrato (onças/lote)</label><input id="contract" type="number" min="0.0001" step="any" value="100"></div>
+<div class="field"><label for="lotStep">Incremento de lote</label><select id="lotStep"><option value="0.01" selected>0,01</option><option value="0.001">0,001</option><option value="0.1">0,10</option></select></div>
+<div class="field"><label for="costs">Reserva para custos/slippage (USD)</label><input id="costs" type="number" min="0" step="0.01" value="2"></div>
+</div>
+<p class="hint">A distância é diferença entre preços do ouro, não dinheiro arriscado. Confirma o tamanho do contrato nas especificações do XAUUSD no MT5.</p>
+</section>
+<section class="panel full"><h2>3 · Resultado da análise</h2><div class="result">
+<div class="stat"><span>Lote estimado (arredondado para baixo)</span><strong class="green" id="lot">0,12</strong></div>
+<div class="stat"><span>Perda estimada no SL + reserva de custos</span><strong class="red" id="loss">$50,00</strong></div>
+<div class="stat"><span>Take Profit (lucro bruto teórico)</span><strong class="green" id="tpMoney">$144,00</strong></div>
+<div class="stat"><span>Preço do Take Profit</span><strong id="tpPrice">—</strong></div>
+<div class="stat"><span>Distância do TP</span><strong id="tpDistance">$12,00</strong></div>
+<div class="stat"><span>Risco em % do saldo</span><strong id="riskPct">1,53%</strong></div>
+</div><div id="alert" class="notice bad" role="status" aria-live="polite">Atenção: o risco definido excede o lucro restante para a meta.</div>
+<div class="actions"><button id="copy">Copiar análise</button><button id="save" class="secondary">Guardar configuração neste dispositivo</button><button id="reset" class="secondary">Repor valores iniciais</button><button id="install" class="install">Instalar aplicação</button></div>
+<p class="foot">Estimativa matemática. Não envia ordens para o MT5. A execução real pode variar devido a spread, comissão, slippage e especificações do símbolo. A calculadora não substitui as regras oficiais da mesa.</p></section>
+</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const num=id=>{const v=parseFloat($(id).value);return Number.isFinite(v)?v:0};
+const fmt=(n,d=2)=>Number(n).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d});
+const money=n=>'$'+fmt(n,2);
+function calculate(){
+ const balance=num('balance'), risk=num('risk'), target=num('target'), daily=num('daily'), overall=num('overall'), rr=num('rr'), contract=num('contract'), distanceInput=num('distance'), step=num('lotStep'), costs=Math.max(0,num('costs'));
+ const entry=$('entry').value.trim()===''?null:num('entry'), sl=$('slPrice').value.trim()===''?null:num('slPrice');
+ const direction=document.querySelector('input[name="direction"]:checked')?.value||'buy';
+ const dist=(entry!==null&&sl!==null&&Math.abs(entry-sl)>0)?Math.abs(entry-sl):distanceInput;
+ const availableRisk=Math.max(0,risk-costs);
+ const rawLot=(dist>0&&contract>0)?availableRisk/(dist*contract):0;
+ const lot=step>0?Math.floor((rawLot+1e-9)/step)*step:0;
+ const actualRisk=lot*dist*contract+costs;
+ const grossReward=lot*dist*contract*rr;
+ const tpDistance=dist*rr;
+ const tpPrice=entry!==null&&entry>0?entry+(direction==='buy'?1:-1)*tpDistance:null;
+ $('summaryBalance').textContent=money(balance);
+ $('summaryRisk').textContent=money(risk);
+ $('summaryReward').textContent=money(risk*rr);
+ $('summaryTarget').textContent=money(target);
+ $('lot').textContent=fmt(lot,3);
+ $('loss').textContent=money(actualRisk);
+ $('tpMoney').textContent=money(grossReward);
+ $('tpPrice').textContent=tpPrice===null?'—':fmt(tpPrice,2);
+ $('tpDistance').textContent='$'+fmt(tpDistance,2);
+ $('riskPct').textContent=balance>0?fmt(actualRisk/balance*100)+'%':'—';
+ const alert=$('alert');let messages=[];
+ if(lot<=0)messages.push('O risco não permite o volume mínimo selecionado. Não aumentes o risco automaticamente.');
+ if(risk>target&&target>0)messages.push('O risco definido é superior ao lucro que falta para a meta ('+money(target)+').');
+ if(risk>daily&&daily>=0)messages.push('O risco definido é superior ao limite diário restante indicado ('+money(daily)+').');
+ if(risk>overall&&overall>=0)messages.push('O risco definido é superior ao limite total restante indicado ('+money(overall)+').');
+ if(entry!==null&&sl!==null&&((direction==='buy'&&sl>=entry)||(direction==='sell'&&sl<=entry)))messages.push('O Stop Loss está do lado incorreto para a direção escolhida.');
+ if(messages.length){alert.className='notice bad';alert.textContent='ATENÇÃO: '+messages.join(' ');}
+ else{alert.className='notice ok';alert.textContent='Sem alerta matemático com os valores introduzidos. Confirma custos e limites oficiais antes da entrada.';}
+}
+const ids=['balance','risk','target','daily','overall','rr','entry','slPrice','distance','contract','lotStep','costs'];
+ids.forEach(id=>$(id).addEventListener('input',calculate));
+document.querySelectorAll('input[name="direction"]').forEach(el=>el.addEventListener('change',calculate));
+$('copy').addEventListener('click',async()=>{
+ const text='KWENDA TRADE CALCULATOR\\nInstrumento: XAUUSD\\nSaldo: '+$('summaryBalance').textContent+'\\nRisco definido: '+$('summaryRisk').textContent+'\\nRR: 1:'+ $('rr').value+'\\nDireção: '+(document.querySelector('input[name="direction"]:checked').value==='buy'?'BUY':'SELL')+'\\nEntrada: '+($('entry').value||'não definida')+'\\nSL: '+($('slPrice').value||('distância '+$('distance').value))+'\\nLote estimado: '+$('lot').textContent+'\\nPerda estimada: '+$('loss').textContent+'\\nTP bruto teórico: '+$('tpMoney').textContent+'\\nPreço TP: '+$('tpPrice').textContent+'\\nMeta restante: '+$('target').value+' USD';
+ try{await navigator.clipboard.writeText(text);$('copy').textContent='Análise copiada!';setTimeout(()=>$('copy').textContent='Copiar análise',1800);}
+ catch(e){window.prompt('Copia a análise abaixo:',text);}
+});
+$('save').addEventListener('click',()=>{
+ try{const data={};ids.forEach(id=>data[id]=$(id).value);data.direction=document.querySelector('input[name="direction"]:checked').value;localStorage.setItem('kwendaCalc',JSON.stringify(data));$('save').textContent='Configuração guardada';setTimeout(()=>$('save').textContent='Guardar configuração neste dispositivo',1800);}
+ catch(e){alert('Não foi possível guardar neste navegador.');}
+});
+$('reset').addEventListener('click',()=>{if(!confirm('Repor os valores iniciais?'))return;localStorage.removeItem('kwendaCalc');location.reload();});
+try{const data=JSON.parse(localStorage.getItem('kwendaCalc')||'null');if(data){ids.forEach(id=>{if(data[id]!==undefined)$(id).value=data[id]});if(data.direction){const radio=document.querySelector('input[name="direction"][value="'+data.direction+'"]');if(radio)radio.checked=true;}}}catch(e){}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('install').style.display='inline-block';});
+$('install').addEventListener('click',async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;}else{alert('Se não aparecer a instalação automática, usa o menu do navegador: Instalar aplicação ou Adicionar ao ecrã principal. No iPhone, abre no Safari e usa Partilhar > Adicionar ao ecrã principal.');}});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+calculate();
+</script>
+</body>
+</html>
